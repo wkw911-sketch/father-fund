@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>爸爸生活费明细</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #1f2328; --muted: #5b6470;
+    --accent: #1f6f5c; --accent-soft: #e4f2ed; --warn: #b3261e; --warn-soft: #fdecea;
+    --line: #e2ded6;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC",
+                 "Noto Sans SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+    font-size: 20px; line-height: 1.6;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 1.7em; margin: 8px 0 2px; letter-spacing: .02em; }
+  h2 { font-size: 1.25em; margin: 0 0 12px; }
+  .updated { color: var(--muted); font-size: .9em; margin: 0 0 20px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 18px; margin: 0 0 20px; box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .balance { background: var(--accent); color: #fff; border: none; }
+  .balance .label { font-size: 1em; opacity: .9; }
+  .balance .amount { font-size: 2.6em; font-weight: 700; line-height: 1.2; margin: 4px 0 14px;
+                     font-variant-numeric: tabular-nums; }
+  .breakdown { width: 100%; border-collapse: collapse; font-size: .95em; }
+  .breakdown td { padding: 6px 0; border-top: 1px solid rgba(255,255,255,.25); }
+  .breakdown td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .breakdown tr.total td { font-weight: 700; border-top: 2px solid rgba(255,255,255,.7); }
+  .handover { margin: 14px 0 0; padding: 10px 12px; background: rgba(255,255,255,.14);
+              border-radius: 10px; font-size: .95em; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.grid { width: 100%; border-collapse: collapse; font-size: 1em; }
+  .grid th, .grid td { padding: 12px 4px; text-align: center; border-bottom: 1px solid var(--line);
+                       white-space: nowrap; }
+  .grid thead th { line-height: 1.25; vertical-align: bottom; }
+  .grid .yr { display: block; font-size: .8em; font-weight: 400; }
+  .grid thead th { font-size: .85em; color: var(--muted); font-weight: 600; }
+  .grid th[scope=row] { text-align: left; font-weight: 700; }
+  .grid td.total { text-align: right; padding-right: 2px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .grid tfoot td, .grid tfoot th { font-weight: 700; border-bottom: none; border-top: 2px solid var(--line); }
+  .paid { display: inline-block; min-width: 2em; color: var(--accent); background: var(--accent-soft);
+          border-radius: 999px; font-weight: 700; padding: 0 .4em; }
+  .due { display: inline-block; color: var(--warn); background: var(--warn-soft);
+         border-radius: 999px; font-weight: 700; padding: 0 .5em; font-size: .9em; }
+  .legend { color: var(--muted); font-size: .85em; margin: 10px 0 0; }
+  .empty { color: var(--muted); background: #faf9f6; border: 1px dashed var(--line);
+           border-radius: 12px; padding: 14px; margin: 0; }
+  ul.spend { list-style: none; margin: 0; padding: 0; }
+  ul.spend li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0;
+                border-bottom: 1px solid var(--line); }
+  ul.spend li:last-child { border-bottom: none; }
+  .spend .date { color: var(--muted); font-size: .85em; display: block; }
+  .spend .amt { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .note { font-size: 1em; }
+  .note strong { color: var(--accent); }
+  .error { color: var(--warn); }
+  footer { color: var(--muted); font-size: .8em; text-align: center; margin-top: 28px; }
+  @media (max-width: 440px) { .card { padding: 16px 14px; } table.grid { font-size: .95em; } }
+  @media (max-width: 380px) { body { font-size: 18px; } .grid th, .grid td { padding: 10px 2px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">爸爸生活费明细</h1>
+  <p class="updated" id="updated">正在载入…</p>
+
+  <section class="card balance" aria-labelledby="bal-h">
+    <div class="label" id="bal-h">目前余额</div>
+    <div class="amount" id="bal-amount">—</div>
+    <table class="breakdown"><tbody id="bal-rows"></tbody></table>
+    <p class="handover" id="bal-note" hidden></p>
+  </section>
+
+  <section class="card" aria-labelledby="grid-h">
+    <h2 id="grid-h">每月供款</h2>
+    <div class="table-wrap">
+      <table class="grid" id="grid"></table>
+    </div>
+    <p class="legend"><span class="paid">✓</span> 已付　<span class="due">待付</span> 未付</p>
+  </section>
+
+  <section class="card" aria-labelledby="spend-h">
+    <h2 id="spend-h">花费记录</h2>
+    <div id="spend"></div>
+  </section>
+
+  <section class="card note" id="note">
+    每人每月供款 <strong>RM150</strong>。
+  </section>
+
+  <noscript><p class="error">请开启 JavaScript 以显示明细。</p></noscript>
+  <footer>家庭内部记录 · 如有疑问请联系 Tim</footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  function el(tag, attrs, text) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  function rm(n, cur) {
+    return (cur || "RM") + Number(n).toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function rmShort(n, cur) {
+    var v = Number(n);
+    return v % 1 === 0 ? (cur || "RM") + v.toLocaleString("en-MY") : rm(v, cur);
+  }
+  function cnDate(iso) {
+    var p = String(iso).split("-");
+    return p.length === 3 ? (+p[0]) + "年" + (+p[1]) + "月" + (+p[2]) + "日" : iso;
+  }
+  function monthLabel(ym, showYear) {
+    var p = ym.split("-");
+    return (showYear ? (+p[0]) + "年" : "") + (+p[1]) + "月";
+  }
+
+  function render(d) {
+    var cur = d.currency || "RM";
+    document.title = d.title;
+    document.getElementById("title").textContent = d.title;
+    document.getElementById("updated").textContent = "最后更新：" + cnDate(d.last_updated);
+
+    // Balance card
+    var b = d.balance;
+    document.getElementById("bal-amount").textContent = rm(b.current, cur);
+    var rows = document.getElementById("bal-rows");
+    function addRow(label, amt, cls) {
+      var tr = el("tr", cls ? { "class": cls } : null);
+      tr.appendChild(el("td", null, label));
+      tr.appendChild(el("td", { "class": "num" }, amt));
+      rows.appendChild(tr);
+    }
+    b.opening_breakdown.forEach(function (x) { addRow(x.label, rm(x.amount, cur)); });
+    var hasMoves = b.contributions_since_opening || b.spending_since_opening;
+    if (hasMoves) {
+      addRow(cnDate(b.opening_date) + " 余额", rm(b.opening_total, cur), "total");
+      if (b.contributions_since_opening) addRow("之后收到的供款", "+ " + rm(b.contributions_since_opening, cur));
+      if (b.spending_since_opening) addRow("之后的花费", "− " + rm(b.spending_since_opening, cur));
+    }
+    addRow("目前余额合计", rm(b.current, cur), "total");
+    if (b.note) { var n = document.getElementById("bal-note"); n.textContent = b.note; n.hidden = false; }
+
+    // Contribution grid
+    var grid = document.getElementById("grid");
+    var thead = el("thead"), hr = el("tr");
+    hr.appendChild(el("th", { scope: "col" }, ""));
+    d.months.forEach(function (m, i) {
+      var showYear = i === 0 || m.slice(0, 4) !== d.months[i - 1].slice(0, 4);
+      var th = el("th", { scope: "col" });
+      if (showYear) th.appendChild(el("span", { "class": "yr" }, (+m.slice(0, 4)) + "年"));
+      th.appendChild(document.createTextNode(monthLabel(m, false)));
+      hr.appendChild(th);
+    });
+    var tth = el("th", { scope: "col", style: "text-align:right" });
+    tth.appendChild(el("span", { "class": "yr" }, "已付"));
+    tth.appendChild(document.createTextNode("合计"));
+    hr.appendChild(tth);
+    thead.appendChild(hr); grid.appendChild(thead);
+
+    var tbody = el("tbody"), grand = 0;
+    d.siblings.forEach(function (s) {
+      var tr = el("tr"), total = 0, c = d.contributions[s] || {};
+      tr.appendChild(el("th", { scope: "row" }, s));
+      d.months.forEach(function (m) {
+        var td = el("td"), e = c[m], amt = e ? Number(e.amount) : 0;
+        if (amt >= d.monthly_amount) td.appendChild(el("span", { "class": "paid", title: "已付 " + rm(amt, cur) }, "✓"));
+        else if (amt > 0) td.appendChild(el("span", { "class": "due" }, rm(amt, cur)));
+        else td.appendChild(el("span", { "class": "due" }, "待付"));
+        tr.appendChild(td);
+      });
+      Object.keys(c).forEach(function (m) { total += Number(c[m].amount) || 0; });
+      grand += total;
+      tr.appendChild(el("td", { "class": "total" }, rmShort(total, cur)));
+      tbody.appendChild(tr);
+    });
+    grid.appendChild(tbody);
+    var tf = el("tfoot"), fr = el("tr");
+    fr.appendChild(el("th", { scope: "row", colspan: String(d.months.length + 1), style: "text-align:left" }, "全部合计"));
+    fr.appendChild(el("td", { "class": "total" }, rmShort(grand, cur)));
+    tf.appendChild(fr); grid.appendChild(tf);
+
+    // Spending
+    var sp = document.getElementById("spend");
+    if (!d.spending || !d.spending.length) {
+      sp.appendChild(el("p", { "class": "empty" },
+        "暂时还没有花费记录。花费记录从" + cnDate(d.spending_start_date) + "开始。"));
+    } else {
+      var ul = el("ul", { "class": "spend" });
+      d.spending.slice().reverse().forEach(function (x) {
+        var li = el("li"), left = el("div");
+        left.appendChild(el("span", { "class": "date" }, cnDate(x.date)));
+        left.appendChild(el("span", null, x.description));
+        li.appendChild(left);
+        li.appendChild(el("span", { "class": "amt" }, rm(x.amount, cur)));
+        ul.appendChild(li);
+      });
+      sp.appendChild(ul);
+      sp.appendChild(el("p", { "class": "legend" }, "花费记录从" + cnDate(d.spending_start_date) + "开始。"));
+    }
+
+    document.getElementById("note").innerHTML = "";
+    var note = document.getElementById("note");
+    note.appendChild(document.createTextNode("每人每月供款 "));
+    note.appendChild(el("strong", null, rmShort(d.monthly_amount, cur)));
+    note.appendChild(document.createTextNode("。"));
+  }
+
+  fetch("data.json", { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(render)
+    .catch(function () {
+      var u = document.getElementById("updated");
+      u.textContent = "资料载入失败，请稍后再刷新页面。";
+      u.className = "updated error";
+    });
+})();
+</script>
+</body>
+</html>
