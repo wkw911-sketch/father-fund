@@ -83,6 +83,10 @@
       "2026-09": {
         "amount": 150.0,
         "date": ""
+      },
+      "2026-10": {
+        "amount": 150.0,
+        "date": "2026-09-26"
       }
     }
   },
@@ -103,9 +107,9 @@
       }
     ],
     "opening_total": 536.6,
-    "contributions_since_opening": 0.0,
+    "contributions_since_opening": 150.0,
     "spending_since_opening": 0.0,
-    "current": 536.6,
+    "current": 686.6,
     "note": "余额已于2026年9月26日转交给 Tim 保管"
   },
   "spending_start_date": "2026-09-26",
