@@ -51,6 +51,17 @@
           border-radius: 999px; font-weight: 700; padding: 0 .4em; }
   .due { display: inline-block; color: var(--warn); background: var(--warn-soft);
          border-radius: 999px; font-weight: 700; padding: 0 .5em; font-size: .9em; }
+  .range { display: flex; gap: 0; margin: 0 0 14px; border: 2px solid var(--accent);
+           border-radius: 14px; overflow: hidden; }
+  .range button { flex: 1 1 0; min-height: 52px; margin: 0; padding: 8px 4px; border: none;
+                  border-left: 2px solid var(--accent); background: var(--card); color: var(--accent);
+                  font: inherit; font-size: 1em; font-weight: 700; cursor: pointer;
+                  -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .range button:first-child { border-left: none; }
+  .range button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .range button:focus-visible { outline: 3px solid #f0b429; outline-offset: -3px; }
+  .range-note { color: var(--muted); font-size: .85em; margin: 0 0 8px; }
+  .grid th[scope=row] { position: sticky; left: 0; background: var(--card); z-index: 1; padding-right: 8px; }
   .legend { color: var(--muted); font-size: .85em; margin: 10px 0 0; }
   .empty { color: var(--muted); background: #faf9f6; border: 1px dashed var(--line);
            border-radius: 12px; padding: 14px; margin: 0; }
@@ -82,6 +93,13 @@
 
   <section class="card" aria-labelledby="grid-h">
     <h2 id="grid-h">每月供款</h2>
+    <div class="range" id="range" role="group" aria-label="显示最近几个月">
+      <button type="button" data-n="3" aria-pressed="true">3个月</button>
+      <button type="button" data-n="6" aria-pressed="false">6个月</button>
+      <button type="button" data-n="9" aria-pressed="false">9个月</button>
+      <button type="button" data-n="12" aria-pressed="false">12个月</button>
+    </div>
+    <p class="range-note" id="range-note" hidden></p>
     <div class="table-wrap">
       <table class="grid" id="grid"></table>
     </div>
@@ -126,6 +144,62 @@
     return (showYear ? (+p[0]) + "年" : "") + (+p[1]) + "月";
   }
 
+  function renderGrid(d, n) {
+    var cur = d.currency || "RM";
+    var all = d.months || [];
+    var months = all.slice(Math.max(0, all.length - n));
+    Array.prototype.forEach.call(document.querySelectorAll("#range button[data-n]"), function (b) {
+      b.setAttribute("aria-pressed", String(+b.getAttribute("data-n") === n));
+    });
+    var note = document.getElementById("range-note");
+    if (all.length < n) {
+      note.textContent = "记录从" + monthLabel(d.first_month || all[0], true) + "开始，目前共" + all.length + "个月。";
+      note.hidden = false;
+    } else {
+      note.textContent = ""; note.hidden = true;
+    }
+
+    var grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    var thead = el("thead"), hr = el("tr");
+    hr.appendChild(el("th", { scope: "col" }, ""));
+    months.forEach(function (m, i) {
+      var showYear = i === 0 || m.slice(0, 4) !== months[i - 1].slice(0, 4);
+      var th = el("th", { scope: "col" });
+      if (showYear) th.appendChild(el("span", { "class": "yr" }, (+m.slice(0, 4)) + "年"));
+      th.appendChild(document.createTextNode(monthLabel(m, false)));
+      hr.appendChild(th);
+    });
+    var tth = el("th", { scope: "col", style: "text-align:right" });
+    tth.appendChild(el("span", { "class": "yr" }, "已付"));
+    tth.appendChild(document.createTextNode("合计"));
+    hr.appendChild(tth);
+    thead.appendChild(hr); grid.appendChild(thead);
+
+    var tbody = el("tbody"), grand = 0;
+    d.siblings.forEach(function (s) {
+      var tr = el("tr"), total = 0, c = d.contributions[s] || {};
+      tr.appendChild(el("th", { scope: "row" }, s));
+      months.forEach(function (m) {
+        var td = el("td"), e = c[m], amt = e ? Number(e.amount) : 0;
+        if (amt >= d.monthly_amount) td.appendChild(el("span", { "class": "paid", title: "已付 " + rm(amt, cur) }, "✓"));
+        else if (amt > 0) td.appendChild(el("span", { "class": "due" }, rm(amt, cur)));
+        else td.appendChild(el("span", { "class": "due" }, "待付"));
+        total += amt;
+        tr.appendChild(td);
+      });
+      grand += total;
+      tr.appendChild(el("td", { "class": "total" }, rmShort(total, cur)));
+      tbody.appendChild(tr);
+    });
+    grid.appendChild(tbody);
+    var tf = el("tfoot"), fr = el("tr");
+    fr.appendChild(el("th", { scope: "row", colspan: String(months.length + 1), style: "text-align:left" },
+      months.length === all.length ? "全部合计" : "以上" + months.length + "个月合计"));
+    fr.appendChild(el("td", { "class": "total" }, rmShort(grand, cur)));
+    tf.appendChild(fr); grid.appendChild(tf);
+  }
+
   function render(d) {
     var cur = d.currency || "RM";
     document.title = d.title;
@@ -152,44 +226,15 @@
     addRow("目前余额合计", rm(b.current, cur), "total");
     if (b.note) { var n = document.getElementById("bal-note"); n.textContent = b.note; n.hidden = false; }
 
-    // Contribution grid
-    var grid = document.getElementById("grid");
-    var thead = el("thead"), hr = el("tr");
-    hr.appendChild(el("th", { scope: "col" }, ""));
-    d.months.forEach(function (m, i) {
-      var showYear = i === 0 || m.slice(0, 4) !== d.months[i - 1].slice(0, 4);
-      var th = el("th", { scope: "col" });
-      if (showYear) th.appendChild(el("span", { "class": "yr" }, (+m.slice(0, 4)) + "年"));
-      th.appendChild(document.createTextNode(monthLabel(m, false)));
-      hr.appendChild(th);
+    // Contribution grid: show only the most recent N months (default 3).
+    // d.months runs oldest -> newest and ends at the latest month anyone has
+    // paid for (or next month, whichever is later), so "most recent N" = last N.
+    var rangeBox = document.getElementById("range");
+    var btns = rangeBox.querySelectorAll("button[data-n]");
+    Array.prototype.forEach.call(btns, function (btn) {
+      btn.addEventListener("click", function () { renderGrid(d, +btn.getAttribute("data-n")); });
     });
-    var tth = el("th", { scope: "col", style: "text-align:right" });
-    tth.appendChild(el("span", { "class": "yr" }, "已付"));
-    tth.appendChild(document.createTextNode("合计"));
-    hr.appendChild(tth);
-    thead.appendChild(hr); grid.appendChild(thead);
-
-    var tbody = el("tbody"), grand = 0;
-    d.siblings.forEach(function (s) {
-      var tr = el("tr"), total = 0, c = d.contributions[s] || {};
-      tr.appendChild(el("th", { scope: "row" }, s));
-      d.months.forEach(function (m) {
-        var td = el("td"), e = c[m], amt = e ? Number(e.amount) : 0;
-        if (amt >= d.monthly_amount) td.appendChild(el("span", { "class": "paid", title: "已付 " + rm(amt, cur) }, "✓"));
-        else if (amt > 0) td.appendChild(el("span", { "class": "due" }, rm(amt, cur)));
-        else td.appendChild(el("span", { "class": "due" }, "待付"));
-        tr.appendChild(td);
-      });
-      Object.keys(c).forEach(function (m) { total += Number(c[m].amount) || 0; });
-      grand += total;
-      tr.appendChild(el("td", { "class": "total" }, rmShort(total, cur)));
-      tbody.appendChild(tr);
-    });
-    grid.appendChild(tbody);
-    var tf = el("tfoot"), fr = el("tr");
-    fr.appendChild(el("th", { scope: "row", colspan: String(d.months.length + 1), style: "text-align:left" }, "全部合计"));
-    fr.appendChild(el("td", { "class": "total" }, rmShort(grand, cur)));
-    tf.appendChild(fr); grid.appendChild(tf);
+    renderGrid(d, 3);
 
     // Spending
     var sp = document.getElementById("spend");
