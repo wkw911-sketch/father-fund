@@ -1,6 +1,6 @@
 {
   "title": "爸爸生活费明细",
-  "last_updated": "2026-10-01",
+  "last_updated": "2026-10-06",
   "currency": "RM",
   "monthly_amount": 150.0,
   "siblings": [
@@ -56,6 +56,10 @@
       "2026-09": {
         "amount": 150.0,
         "date": ""
+      },
+      "2026-10": {
+        "amount": 150.0,
+        "date": "2026-10-06"
       }
     },
     "童": {
@@ -118,9 +122,9 @@
       }
     ],
     "opening_total": 536.6,
-    "contributions_since_opening": 450.0,
+    "contributions_since_opening": 600.0,
     "spending_since_opening": 0.0,
-    "current": 986.6,
+    "current": 1136.6,
     "note": "余额已于2026年9月26日转交给 Tim 保管"
   },
   "spending_start_date": "2026-09-26",
