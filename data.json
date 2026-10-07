@@ -1,6 +1,6 @@
 {
   "title": "爸爸生活费明细",
-  "last_updated": "2026-10-06",
+  "last_updated": "2026-10-07",
   "currency": "RM",
   "monthly_amount": 150.0,
   "siblings": [
@@ -59,7 +59,7 @@
       },
       "2026-10": {
         "amount": 150.0,
-        "date": "2026-10-06"
+        "date": "2026-10-07"
       }
     },
     "童": {
