@@ -123,10 +123,16 @@
     ],
     "opening_total": 536.6,
     "contributions_since_opening": 600.0,
-    "spending_since_opening": 0.0,
-    "current": 1136.6,
+    "spending_since_opening": 113.0,
+    "current": 1023.6,
     "note": "余额已于2026年9月26日转交给 Tim 保管"
   },
   "spending_start_date": "2026-09-26",
-  "spending": []
+  "spending": [
+    {
+      "date": "2026-10-07",
+      "description": "沙发分期付款（第7期/共12期）",
+      "amount": 113.0
+    }
+  ]
 }
