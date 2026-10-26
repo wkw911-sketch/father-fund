@@ -112,7 +112,7 @@
   </section>
 
   <section class="card note" id="note">
-    每人每月供款 <strong>RM150</strong>。
+    每人每月供款 <strong>RM200</strong>（2026年11月起；之前 RM150）。
   </section>
 
   <noscript><p class="error">请开启 JavaScript 以显示明细。</p></noscript>
@@ -182,7 +182,8 @@
       tr.appendChild(el("th", { scope: "row" }, s));
       months.forEach(function (m) {
         var td = el("td"), e = c[m], amt = e ? Number(e.amount) : 0;
-        if (amt >= d.monthly_amount) td.appendChild(el("span", { "class": "paid", title: "已付 " + rm(amt, cur) }, "✓"));
+        var exp = Number((d.monthly_amounts && d.monthly_amounts[m]) || d.monthly_amount);
+        if (amt >= exp) td.appendChild(el("span", { "class": "paid", title: "已付 " + rm(amt, cur) }, "✓"));
         else if (amt > 0) td.appendChild(el("span", { "class": "due" }, rm(amt, cur)));
         else td.appendChild(el("span", { "class": "due" }, "待付"));
         total += amt;
@@ -259,7 +260,7 @@
     var note = document.getElementById("note");
     note.appendChild(document.createTextNode("每人每月供款 "));
     note.appendChild(el("strong", null, rmShort(d.monthly_amount, cur)));
-    note.appendChild(document.createTextNode("。"));
+    note.appendChild(document.createTextNode("（2026年10月及以前为 RM150，2026年11月起为 RM200）。"));
   }
 
   fetch("data.json", { cache: "no-store" })
