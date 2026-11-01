@@ -1,6 +1,6 @@
 {
   "title": "爸爸生活费明细",
-  "last_updated": "2026-11-01",
+  "last_updated": "2026-11-02",
   "currency": "RM",
   "monthly_amount": 200.0,
   "monthly_amounts": {
@@ -8,7 +8,8 @@
     "2026-09": 150.0,
     "2026-10": 150.0,
     "2026-11": 200.0,
-    "2026-12": 200.0
+    "2026-12": 200.0,
+    "2027-01": 200.0
   },
   "siblings": [
     "大姐",
@@ -23,10 +24,11 @@
     "2026-09",
     "2026-10",
     "2026-11",
-    "2026-12"
+    "2026-12",
+    "2027-01"
   ],
   "first_month": "2026-08",
-  "latest_paid_month": "2026-11",
+  "latest_paid_month": "2027-01",
   "contributions": {
     "大姐": {
       "2026-08": {
@@ -54,6 +56,18 @@
       "2026-10": {
         "amount": 150.0,
         "date": ""
+      },
+      "2026-11": {
+        "amount": 200.0,
+        "date": "2026-11-02"
+      },
+      "2026-12": {
+        "amount": 200.0,
+        "date": "2026-11-02"
+      },
+      "2027-01": {
+        "amount": 200.0,
+        "date": "2026-11-02"
       }
     },
     "玲": {
@@ -142,9 +156,9 @@
       }
     ],
     "opening_total": 536.6,
-    "contributions_since_opening": 1200.0,
+    "contributions_since_opening": 1800.0,
     "spending_since_opening": 860.35,
-    "current": 876.25,
+    "current": 1476.25,
     "note": "余额已于2026年9月26日转交给 Tim 保管"
   },
   "spending_start_date": "2026-09-26",
