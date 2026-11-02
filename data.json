@@ -42,6 +42,18 @@
       "2026-10": {
         "amount": 150.0,
         "date": ""
+      },
+      "2026-11": {
+        "amount": 200.0,
+        "date": "2026-11-02"
+      },
+      "2026-12": {
+        "amount": 200.0,
+        "date": "2026-11-02"
+      },
+      "2027-01": {
+        "amount": 200.0,
+        "date": "2026-11-02"
       }
     },
     "二姐": {
@@ -82,6 +94,10 @@
       "2026-10": {
         "amount": 150.0,
         "date": "2026-10-07"
+      },
+      "2026-11": {
+        "amount": 200.0,
+        "date": "2026-11-02"
       }
     },
     "童": {
@@ -156,9 +172,9 @@
       }
     ],
     "opening_total": 536.6,
-    "contributions_since_opening": 1800.0,
-    "spending_since_opening": 860.35,
-    "current": 1476.25,
+    "contributions_since_opening": 2600.0,
+    "spending_since_opening": 1460.35,
+    "current": 1676.25,
     "note": "余额已于2026年9月26日转交给 Tim 保管"
   },
   "spending_start_date": "2026-09-26",
@@ -177,6 +193,11 @@
       "date": "2026-10-25",
       "description": "购买鸡肉",
       "amount": 347.35
+    },
+    {
+      "date": "2026-11-02",
+      "description": "清洁屋子费用（10月，5次×RM120）",
+      "amount": 600.0
     }
   ]
 }
