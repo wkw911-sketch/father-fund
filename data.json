@@ -1,6 +1,6 @@
 {
   "title": "爸爸生活费明细",
-  "last_updated": "2026-11-02",
+  "last_updated": "2026-11-11",
   "currency": "RM",
   "monthly_amount": 200.0,
   "monthly_amounts": {
@@ -173,8 +173,8 @@
     ],
     "opening_total": 536.6,
     "contributions_since_opening": 2600.0,
-    "spending_since_opening": 1573.35,
-    "current": 1563.25,
+    "spending_since_opening": 1973.35,
+    "current": 1163.25,
     "note": "余额已于2026年9月26日转交给 Tim 保管"
   },
   "spending_start_date": "2026-09-26",
@@ -203,6 +203,11 @@
       "date": "2026-11-02",
       "description": "沙发分期付款（第8期/共12期）",
       "amount": 113.0
+    },
+    {
+      "date": "2026-11-11",
+      "description": "买伙食",
+      "amount": 400.0
     }
   ]
 }
